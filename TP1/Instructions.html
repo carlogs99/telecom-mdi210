@@ -1,0 +1,341 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0072)https://perso.telecom-paristech.fr/hudry/optim/simplexEnglish/index.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>TP simplexe</title>
+  <meta name="generator" content="LibreOffice 5.2.7.2 (Linux)">
+  <meta name="created" content="00:00:00">
+  <meta name="changed" content="2017-10-03T14:21:04.138615246">
+  <style type="text/css">
+p { color: #000000 }
+h1 { color: #000000 }
+h4 { color: #000000 }
+h4.cjk { font-family: "AR PL SungtiL GB" }
+h4.ctl { font-family: "FreeSans" }
+h2 { color: #000000 }
+h2.cjk { font-family: "AR PL SungtiL GB" }
+h2.ctl { font-family: "FreeSans" }
+  </style>
+</head>
+<body style="direction: ltr; color: rgb(0, 0, 0); background-color: rgb(238, 238, 238);" lang="fr-FR">
+<h1 align="center">Practical work on&nbsp;the simplex
+method</h1>
+<p><br>
+<br>
+The work consists in modifying a class named <span style="font-family: monospace;">Dictionnary.java</span>
+which models a dictionary. The attributes of this class used to code
+the problem are:<br>
+<font face="monospace">int nbBasicVar;</font><br>
+<font face="monospace">int
+nbNonBasicVar;</font><br>
+<font face="monospace">int[] array</font><font face="monospace">BasicVar</font><font face="monospace">;</font><br>
+<font face="monospace">int[] array</font><font face="monospace">NonBasicVar</font><font face="monospace">;</font><br>
+<font face="monospace">double[][] D;<br>
+<br>
+</font>In the arrays <span style="font-family: monospace;">array</span><font face="monospace">BasicVar</font>
+et <span style="font-family: monospace;">array</span><font face="monospace">NonBasicVar</font>, <span style="font-weight: bold;">we
+do not use the boxes of index 0</span>.<font face="monospace"><br>
+</font>The array <span style="font-family: monospace;">array</span><font face="monospace">BasicVar </font>has
+dimension&nbsp;<font face="monospace">nbBasicVar</font><font face="monospace">
++ 1</font>.<font face="monospace"><br>
+</font>The array<span style="font-family: monospace;">
+array</span><font face="monospace">NonBasicVar</font>has&nbsp;dimension&nbsp;<font face="monospace">nbNonBasicVar</font><font face="monospace"> + 1</font>.<font face="monospace"><br>
+</font>The matrix <span style="font-family: monospace;">D</span>
+has dimension
+<font face="monospace">(</font><font face="monospace">nbBasicVar</font><font face="monospace"> + 1</font>) × <font face="monospace">(</font><font face="monospace">nbNonBasicVar</font><font face="monospace">
++ 1</font>).<br>
+<font face="monospace"><br>
+</font>The problem data is read from a file and corresponds to a
+problem in standard form. In order to work, it is necessary to
+understand the coding used.<br>
+If the problem is (whose encoding is in pb1.txt):<br>
+&nbsp;&nbsp;&nbsp; &nbsp;maximize
+z = 4x<sub>1</sub> + 3 x<sub>2</sub> <br>
+&nbsp;&nbsp;&nbsp; &nbsp;with&nbsp;
+<br>
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 2x<sub>1</sub>
++ 3x<sub>2</sub>&nbsp;≤ 24<br>
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+5x<sub>1</sub> + 3x<sub>2</sub>&nbsp;≤
+30<br>
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp; x<sub>1</sub>&nbsp;
++ 3x<sub>2</sub>&nbsp;≤
+18<br>
+&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; x<sub>1</sub>&nbsp;≥
+0, x<sub>2</sub>&nbsp;≥ 0<br>
+then the file contains (first line: the number of variables then the
+number of constraints other than the sign constraints, following lines:
+the coefficients then the constants of the constraints, last line: the
+coefficients of the variables in z; at the beginning, if the variables
+in z are null, z is also null):<br>
+&nbsp;&nbsp;&nbsp; &nbsp;2
+3<br>
+&nbsp;&nbsp;&nbsp; &nbsp;2 3 24<br>
+&nbsp;&nbsp;&nbsp; &nbsp;5
+3 30<br>
+&nbsp;&nbsp;&nbsp; &nbsp;1 3 18<br>
+&nbsp; &nbsp; &nbsp;4
+3<br>
+&nbsp;&nbsp; The first feasible dictionary is:<br>
+&nbsp;&nbsp;&nbsp; &nbsp;x<sub>3</sub> = 24
+- 2x<sub>1</sub>
+- 3x<sub>2</sub><br>
+&nbsp;&nbsp;&nbsp; &nbsp;x<sub>4</sub> = 30
+-
+5x<sub>1</sub> - 3x<sub>2</sub><br>
+&nbsp;&nbsp;&nbsp; &nbsp;x<sub>5</sub>
+= 18 - &nbsp; x<sub>1</sub> - 3x<sub>2<br>
+&nbsp; &nbsp; &nbsp; </sub>&nbsp;z
+&nbsp; = &nbsp;0 + 4x<sub>1</sub> + 3x<sub>2<br>
+</sub>&nbsp;&nbsp; and, after initializing the program
+variables (initialization from the file is already programmed):
+&nbsp;<br>
+&nbsp;&nbsp;
+<font face="monospace">&nbsp;nbBasicVar = 3<br>
+&nbsp; &nbsp;nbNon</font><font face="monospace">BasicVar</font><font face="monospace">
+= 2<br>
+&nbsp; &nbsp;array</font><font face="monospace">Non</font><font face="monospace">BasicVar</font> has dimension
+3&nbsp;and contains at indices 1 et 2 the numbers 1, 2 (for the
+variables x<sub>1</sub>
+et x<sub>2</sub>, which are initially the non-basic
+variables)<br>
+&nbsp;&nbsp;
+<font face="monospace">&nbsp;arrayBasicVar </font>has
+dimension 4&nbsp;and contains at indices 1, 2 and 3&nbsp; les
+numbers 3, 4, 5 (for the
+variables x<sub>3</sub>, x<sub>4</sub>, x<sub>5</sub>,&nbsp;which
+are initially the&nbsp;basic variables)<br>
+&nbsp;&nbsp;&nbsp; &nbsp;The matrix <span style="font-family: monospace;">D</span> has dimension
+4 × 3&nbsp; and contains :&nbsp;<br>
+&nbsp;&nbsp; &nbsp;<font face="monospace">0&nbsp;
+4 &nbsp;3</font><br>
+&nbsp; &nbsp;<font face="monospace">24&nbsp;-2
+-3</font><br>
+&nbsp;&nbsp; <font face="monospace">30 -5 -3</font><br>
+&nbsp;&nbsp;
+<font face="monospace">18 -1 -3 </font><br>
+<br>
+After pivoting by entering the variable x1 and leaving the variable x4,
+that is, entering the variable of index 1 in&nbsp;<font face="monospace">tabNonBasicVar</font>
+and leaving the variable of
+index 2 in&nbsp;<font face="monospace">tabBasicVar</font>,
+the new dictionary must be:<br>
+&nbsp;&nbsp;&nbsp; &nbsp;x<sub>3</sub>
+= 12 + 0,4 x<sub>4</sub> - 1,8 x<sub>2</sub><br>
+&nbsp;&nbsp;&nbsp;
+&nbsp;x<sub>1</sub> =&nbsp; 6 - &nbsp; 0,2 x<sub>4</sub>
+- 0,6 x<sub>2</sub><br>
+&nbsp;&nbsp;&nbsp;
+&nbsp;x<sub>5</sub> = 12 +&nbsp; 0,2 x<sub>4</sub>
+- 2,4 x<sub>2</sub><br>
+&nbsp;&nbsp;&nbsp;
+&nbsp;z&nbsp; = 24&nbsp; - &nbsp;0,8 x<sub>4</sub>
++ 0,6 x<sub>2</sub><br>
+&nbsp;&nbsp;&nbsp;
+&nbsp;The coding must then be:<br>
+&nbsp;&nbsp;&nbsp;
+&nbsp;<font face="monospace">arrayNonBasicVar</font>&nbsp;contains
+at indices 1 et 2 the numbers 4 et&nbsp; 2<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <font face="monospace">arrayBasicVar</font>&nbsp;contains
+at indices 1, 2 and 3&nbsp; les numbers 3,&nbsp; 1 et&nbsp;
+5<br>
+&nbsp;&nbsp;&nbsp; &nbsp;The matrix <span style="font-family: monospace;">D</span> contains:<br>
+&nbsp; &nbsp;<font face="monospace">24
+-0,8 &nbsp;0,6</font><br>
+&nbsp;&nbsp;&nbsp;<font face="monospace">12&nbsp;
+0,4 -1,8</font><br>
+&nbsp;&nbsp; &nbsp;<font face="monospace">6
+-0,2
+-0,6</font><br>
+&nbsp;&nbsp;&nbsp;<font face="monospace">12
+&nbsp;0,2
+-2,4&nbsp;</font><br>
+With this coding, one step is to look in <font face="monospace">arrayNonBasicVar</font><font face="monospace"> </font>the index of an entering
+variable<font face="monospace">,</font> <font face="monospace">in</font>
+<font face="monospace">arrayVarBase</font><span style="font-weight: bold;">&nbsp;</span>the index
+of an leaving variable<span style="font-weight: bold;"></span>,
+then to build the new dictionary obtained by pivoting with these two
+choices of indices; for that, it is necessary to compute for the new
+dictionary the matrix D, the arrays <span style="font-family: monospace;">arrayBasicVar</span>
+and <span style="font-family: monospace;">arrayNonBasicVar.</span><br>
+<br>
+REMARKS</p>
+<ul>
+  <li>
+    <p><font color="#ff0000"><b>WARNING : </b></font><b>In
+the comments of the program, we say that the variable x1 is the
+variable of </b><font color="#ff0000"><b>number</b></font><font color="#330033"><b> 1</b></font><b>,</b><b>
+the variable</b><b> x2&nbsp;</b><b>is the
+variable of </b><font color="#ff0000"><b>number</b></font><b> 2,
+... </b><font color="#330033"><b>When we talk
+about </b></font><font color="#ff0000"><b>index </b></font><font color="#330033"><b>in
+programming, it is always an</b></font><font color="#ff0000"><b>&nbsp;
+index in arrays</b></font><font color="#330033"><b> and not an index of
+a variable.</b></font><font color="#330033">&nbsp;</font> </p>
+  </li>
+</ul>
+<ul>
+  <li>
+    <p style="margin-bottom: 0cm;">WARNING:<span style="font-family: monospace;"> </span>do not use
+the attribute <font face="monospace">incomplete</font>
+of the class <font face="monospace">Dictionary</font> </p>
+  </li>
+  <li>
+    <p>&nbsp;Decison variables have numbers between 1 and <font face="monospace">nbNonBasicVar</font>;&nbsp; slack
+variables&nbsp;have numbers between&nbsp;<font face="monospace">nbNonBasicVar</font><font face="monospace"> </font>+ 1 et&nbsp;<font face="monospace">nbBasicVar</font><font face="monospace"> + </font><font face="monospace">nbNonBasicVar</font>.
+    </p>
+  </li>
+</ul>
+<ul>
+  <li>
+    <p>For a dictionary of the first phase, when we search a
+feasible solution, a variable of number 0 is added. </p>
+  </li>
+</ul>
+<p><br>
+You have to start by downloading the file&nbsp;<a href="https://perso.telecom-paristech.fr/hudry/optim/simplexEnglish/simplexToComplete.jar">simplexToComplete.jar</a>
+as well as the file <a href="https://perso.telecom-paristech.fr/hudry/optim/simplexEnglish/pbs.jar">pbs.jar</a>
+containing the dictionaries.&nbsp;<br>
+<br>
+After launching Eclipse, to create the project:</p>
+<ul>
+  <li>in "File", do New then Java Project: this opens a window;</li>
+  <li>in the "Project name" framework, put the name of your choice;</li>
+  <li>in the JRE framework, select "Use a project specific JRE"; on the
+right, click on "Configure JREs..." (under the two small frames): this
+opens a window called "Preferences"</li>
+  <li>in the "Preferences" window, click on the "Add" button: this
+opens a window called "Add JRE";</li>
+  <li>&nbsp;in the "Add JRE" window, select "Standard VM" then click on
+"Next": this opens a new window called "Add JRE";</li>
+  <li>in "JRE home", write /cal/softs/java/jdk-11.0.19/ then click on
+Finish:
+this returns to the "Preferences" window; then click on "Apply and
+close";
+this returns to the "New Java Project" window;</li>
+  <li>in the JRE framework, at the (selected) line "Use a project
+specific
+JRE", choose "jdk-11.0.19" using the black triangle pointed down;</li>
+  <li>click on the "Finish" button at the bottom; this opens a "New
+module-info.java"
+window;&nbsp; in this window, choose <span style="font-weight: bold; color: rgb(255, 0, 0);">"Don't
+create" in order NOT TO CREATE A MODULE</span>.</li>
+</ul>
+Then, for each of the two downloaded files
+<ul>
+</ul>
+<ul>
+  <li>click on the name of the project with the button on the right and
+choose "import"; </li>
+  <li>in the obtained window, in "General", choose "Archive File"; </li>
+  <li>after doing "Next", browse to choose&nbsp;the file to
+dowhload; </li>
+  <li>click on finish.</li>
+</ul>
+<p>You are then ready to work. You can already run the program;
+the main method is in the file <span style="font-family: monospace;">Main.java</span>&nbsp;
+of the <span style="font-family: monospace;">simplex</span>
+package. You can choose any of the data files provided in the directory
+named&nbsp;<span style="font-family: Courier New,Courier,monospace;">pbs</span>.</p>
+<p>
+<span style="font-weight: bold;">WARNING: during all the
+work, do not modify anything outside the Dictionary class.</span></p>
+<h4 class="western">Details on the different files:</h4>
+<p>The dictionaries coded in pb1.txt up to pb15.txt are
+feasible.&nbsp;<br>
+The problems corresponding to&nbsp;pb1.txt up to
+pb13.txt are bounded.<br>
+The problems corresponding to pb14.txt and pb15.txt are
+unbounded.&nbsp;<br>
+If an iteration is performed from the dictionary encoded by pb12.txt
+using the entering variable of greatest coefficient, a degenerate
+dictionary is obtained.<br>
+The dictionary encoded by pb13.txt is degenerate. If we use
+the&nbsp;entering variable of greatest coefficient, without the
+rule of
+Bland, there is cycling.<br>
+The basic solutions associated with the dictionaries coded in pb16.txt
+up to pb20.txt are not feasible but the corresponding problems admit a
+feasible solution: the first phase of the simplex method gives a
+feasible dictionary for the initial problem.<br>
+The problems corresponding to pb21.txt and pb22.txt are not feasible.</p>
+You can find a <a href="https://perso.telecom-paristech.fr/hudry/optim/simplexEnglish/doc/index.html">documentation on
+the project code</a> written in Java.<br>
+<h2 class="western">Work to be done</h2>
+<p><!--A la fin de la s&eacute;ance de TP, vous enverrez le
+fichier <span style="font-family: monospace;">Dictionnaire.java
+</span>par
+courrier &eacute;lectronique &agrave;
+irene.charon@gmail.com. Le titre de ce courrier comportera
+l'indication
+qu'il s'agit du "TP simplexe" ainsi que votre nom ; exemple
+:&nbsp;TP_simplexe_Dupont. --><br>
+You have to implement (and test as you go along) some of the methods of
+the class <font face="monospace">Dictionary</font>.
+<br>
+<br>
+1. Implement methods in the following order: </p>
+<ul>
+  <li>
+    <p style="margin-bottom: 0cm;"><font face="monospace">isFeasible</font>
+    </p>
+  </li>
+  <li>
+    <p style="margin-bottom: 0cm;"><font face="monospace">searchFirstIndexEnteringVariable</font>
+    </p>
+  </li>
+  <li>
+    <p style="margin-bottom: 0cm;"><font face="monospace">searchIndexLeavingVariable</font>
+    </p>
+  </li>
+  <li>
+    <p><font face="monospace">pivote</font> </p>
+  </li>
+</ul>
+<p>You can already try your program with all the data files
+giving an
+initial feasible dictionary with the choice of the entering variable
+according to the criterion of the variable of smallest index in
+the&nbsp;array<span style="font-family: monospace;">
+tabNonBasicVar</span>. We advise you to try at least pb1.txt and
+pb14.txt (which is unbounded).</p>
+<p>
+2.&nbsp;Implément:</p>
+<ul>
+  <li>
+    <p style="margin-bottom: 0cm;"><font face="monospace">searchIndexEnteringVariableGreatestCoeff()</font>:
+you can test on pb3.txt; you should also notice that there is cycling
+with this method and the file pb13.txt </p>
+  </li>
+  <li>
+    <p><font face="monospace">searchEnteringAdvantageousVariableIndex</font>&nbsp;:
+vous pouvez tester sur pb4.txt. </p>
+  </li>
+</ul>
+<p>in order to test Bland rule:</p>
+<ul>
+  <li>
+    <p style="margin-bottom: 0cm;"><font face="monospace">searchIndexEnteringVariableSmallestNumber</font>,
+    </p>
+  </li>
+  <li>
+    <p><font face="monospace">searchIndexLeavingVariableSmallestNumber&nbsp;</font>(be
+careful to take among the outgoing variables the one with the lowest
+number)<font face="monospace">.</font> </p>
+  </li>
+</ul>
+<p>You can test the Bland rule on pb13.txt to find that there is
+no
+longer any cycling with the choice of the entering variable of greatest
+coefficient&nbsp; by selecting "Apply Bland Rule".<font face="monospace"><br>
+</font><br>
+<br>
+<br>
+</p>
+
+
+</body></html>
